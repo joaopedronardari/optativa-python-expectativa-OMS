@@ -21,20 +21,39 @@ def leituraArquivo(caminho):
 
     linha = arquivo.readline()
     pais = ''
+    listaPaises2 = []
     listaPaises = []
     todosValoresIdade = []
 
+    maiorPais = {'nome': '', 'media': 0}
+    somatorio = 0
+    n = 0
     while(linha):
         partes = linha.split(',')
         if (pais != partes[0]): # Pais novo
+            # Media do ultimo
+            if (pais != ''):
+                mediaUltimo = somatorio / n
+
+                if (mediaUltimo > maiorPais['media']):
+                    maiorPais['media'] = mediaUltimo
+                    maiorPais['nome'] = listaPaises[-1]
+
             pais = partes[0]
+            # Primeira vez que mudou o pais
+            somatorio = float(partes[2].replace('"',''))
+            n = 1
+            listaPaises.append(partes[0].replace('"', ''))
+
             item = {
                 "pais": partes[0].replace('"', ''),
                 "valores": getFloatNumbers(partes[2])
             }
 
-            listaPaises.append(item)
+            listaPaises2.append(item)
         else: # Mesmo pais
+            somatorio += float(partes[2].replace('"',''))
+            n += 1
             item["valores"].extend(getFloatNumbers(partes[2]))
 
         todosValoresIdade.extend(getFloatNumbers(partes[2]))
@@ -43,7 +62,9 @@ def leituraArquivo(caminho):
     print("Média total de idades: %f" % media(todosValoresIdade))
     print("Desvio total de idades: %f" % desvio(todosValoresIdade))
     
-    return listaPaises
+    print("O Maior país é: " + maiorPais['nome'] + " com média " + str(maiorPais['media']))
+
+    return listaPaises2
 
 def media(valores):
     soma = 0
@@ -59,7 +80,7 @@ def desvio(valores):
     return (somatoria / len(valores)) ** (1/2)
 
 def main():
-    listaPaises = leituraArquivo('./dataomswithrwanda.csv')
+    listaPaises = leituraArquivo('./dataoms.csv')
 
     menorExpectativa = {'pais': '', 'media': media(listaPaises[0]['valores'])}
     maiorExpectativa = {'pais': '', 'media': 0}
